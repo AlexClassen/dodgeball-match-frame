@@ -37,20 +37,27 @@ jobs:
 
       - name: Build macOS app
         run: |
-          if [ -n "$MACOS_CERTIFICATE_BASE64" ]; then
+          if [ -n "$MACOS_CERTIFICATE_BASE64" ] && [ -n "$MACOS_CERTIFICATE_PASSWORD" ] && [ -n "$APPLE_ID" ] && [ -n "$APPLE_NOTARIZATION_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            echo "Apple signing secrets found — building signed and notarized release"
+            CERT_PATH="$RUNNER_TEMP/certificate.p12"
+            echo "$MACOS_CERTIFICATE_BASE64" | base64 --decode > "$CERT_PATH"
+            export CSC_LINK="$CERT_PATH"
+            export CSC_KEY_PASSWORD="$MACOS_CERTIFICATE_PASSWORD"
+            export APPLE_APP_SPECIFIC_PASSWORD="$APPLE_NOTARIZATION_PASSWORD"
             npm run dist:mac -- \
               --config.mac.hardenedRuntime=true \
               --config.mac.notarize=true \
               --config.mac.gatekeeperAssess=false
           else
-            CSC_IDENTITY_AUTO_DISCOVERY=false npm run dist:mac
+            echo "Apple signing secrets not configured — building unsigned release"
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+            npm run dist:mac
           fi
         env:
           MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
-          CSC_LINK: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_NOTARIZATION_PASSWORD }}
+          APPLE_NOTARIZATION_PASSWORD: ${{ secrets.APPLE_NOTARIZATION_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Upload release assets
