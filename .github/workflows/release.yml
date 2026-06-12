@@ -36,9 +36,22 @@ jobs:
           npm version "${VERSION#v}" --no-git-tag-version --allow-same-version
 
       - name: Build macOS app
-        run: npm run dist:mac
+        run: |
+          if [ -n "$MACOS_CERTIFICATE_BASE64" ]; then
+            npm run dist:mac -- \
+              --config.mac.hardenedRuntime=true \
+              --config.mac.notarize=true \
+              --config.mac.gatekeeperAssess=false
+          else
+            CSC_IDENTITY_AUTO_DISCOVERY=false npm run dist:mac
+          fi
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+          CSC_LINK: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_NOTARIZATION_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -48,6 +61,18 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
+          body: |
+            ## macOS install
+
+            **Signed release** (after Apple signing secrets are configured): open the `.dmg`, drag Match Framer to Applications, and launch normally.
+
+            **Unsigned release** (current builds): macOS may show *"Match Framer is damaged"*. This is Gatekeeper blocking an unsigned download, not actual corruption. After copying the app to Applications, run:
+
+            ```bash
+            xattr -cr "/Applications/Match Framer.app"
+            ```
+
+            Then open the app from Applications, or right-click → **Open** the first time.
           files: |
             release/*.dmg
             release/*.zip
