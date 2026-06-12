@@ -69,17 +69,32 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
           body: |
-            ## macOS install
+            ## macOS install (unsigned build)
 
-            **Signed release** (after Apple signing secrets are configured): open the `.dmg`, drag Match Framer to Applications, and launch normally.
+            macOS may show **"Match Framer is damaged"** when you open the `.dmg`. That is Gatekeeper blocking an unsigned download — the app is not corrupted.
 
-            **Unsigned release** (current builds): macOS may show *"Match Framer is damaged"*. This is Gatekeeper blocking an unsigned download, not actual corruption. After copying the app to Applications, run:
+            ### Option A — use the `.zip` (recommended)
+
+            1. Download `Match Framer-*-mac.zip` instead of the `.dmg`
+            2. Unzip it
+            3. Drag `Match Framer.app` to **Applications**
+            4. Open **Terminal** and run:
 
             ```bash
             xattr -cr "/Applications/Match Framer.app"
             ```
 
-            Then open the app from Applications, or right-click → **Open** the first time.
+            5. Open Match Framer from Applications (or right-click → **Open** the first time)
+
+            ### Option B — fix after using the `.dmg`
+
+            1. Eject the disk image if it is mounted
+            2. Drag `Match Framer.app` to **Applications**
+            3. Run the same `xattr` command as above
+
+            ### Permanent fix
+
+            Configure Apple code signing secrets in the repo to produce signed, notarized releases that open without this workaround.
           files: |
             release/*.dmg
             release/*.zip

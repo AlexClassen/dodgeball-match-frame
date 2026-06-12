@@ -37,6 +37,13 @@
     "asarUnpack": [
       "node_modules/sharp/**/*"
     ],
+    "afterPack": "scripts/after-pack.mjs",
+    "extraFiles": [
+      {
+        "from": "scripts/install-mac.command",
+        "to": "Install Match Framer.command"
+      }
+    ],
     "mac": {
       "category": "public.app-category.graphics-design",
       "entitlements": "build/entitlements.mac.plist",
