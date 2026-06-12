@@ -1,0 +1,94 @@
+{
+  "name": "match-framer",
+  "version": "0.0.0",
+  "description": "Desktop app for creating dodgeball match announcement thumbnails",
+  "author": "Alex Classen",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:electron": "node electron/build.mjs",
+    "build:desktop": "npm run build && npm run build:electron",
+    "dist:mac": "npm run build:desktop && electron-builder --mac",
+    "electron:dev": "npm run build:electron && concurrently -k \"npm run start\" \"wait-on http://localhost:4200 && node electron/watch.mjs\"",
+    "electron:start": "npm run build:electron && electron .",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "build": {
+    "appId": "com.matchframer.app",
+    "productName": "Match Framer",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      {
+        "from": "dist/match-framer/browser",
+        "to": "browser",
+        "filter": [
+          "**/*"
+        ]
+      },
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/sharp/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    }
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "adm-zip": "^0.5.17",
+    "archiver": "^8.0.0",
+    "sharp": "^0.35.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.28",
+    "@angular/cli": "^20.3.28",
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/compiler-cli": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "@angular/platform-browser": "^20.3.0",
+    "@angular/router": "^20.3.0",
+    "@types/jasmine": "~5.1.0",
+    "@types/node": "^25.9.3",
+    "concurrently": "^10.0.3",
+    "electron": "^42.4.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.28.1",
+    "fabric": "^7.4.0",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "typescript": "~5.9.2",
+    "wait-on": "^9.0.10",
+    "zone.js": "~0.15.0"
+  }
+}
