@@ -10,7 +10,7 @@
     "build": "ng build",
     "build:electron": "node electron/build.mjs",
     "build:desktop": "npm run build && npm run build:electron",
-    "dist:mac": "npm run build:desktop && electron-builder --mac",
+    "dist:mac": "npm run build:desktop && electron-builder --mac --publish never",
     "electron:dev": "npm run build:electron && concurrently -k \"npm run start\" \"wait-on http://localhost:4200 && node electron/watch.mjs\"",
     "electron:start": "npm run build:electron && electron .",
     "watch": "ng build --watch --configuration development",
@@ -19,6 +19,7 @@
   "build": {
     "appId": "com.matchframer.app",
     "productName": "Match Framer",
+    "publish": null,
     "directories": {
       "output": "release"
     },
